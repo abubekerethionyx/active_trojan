@@ -1,0 +1,4 @@
+pyautogen=0.3.0
+scikit-learn=1.5.2
+xgboost=2.1.1
+mysql-connector-python=9.0.0
