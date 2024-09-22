@@ -10,16 +10,16 @@ This project provides a FastAPI application for executing SQL queries against a 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
-- Python 3.7 or later
+- Python 3.11 or later
 - MySQL server
 - pip (Python package installer)
--  pip install -r .\requirements.txt   
 
-You will also need to have a `.env` file in the root of your project with the following variables:
-
-
+You will also need to have a `.env` file in the root of your project with the variables values filled.
+if you want to populate the sample .csv file to mysql database
+ - setup mysql server
+ - run python .\app\helper\populate_db.py
 ## Installation
-python -m venv venv
-On Windows use `venv\Scripts\activate`
-pip install -r requirements.txt
-python app/main.py
+- python -m venv venv
+- On Windows use `venv\Scripts\activate`
+- pip install -r requirements.txt
+- python app/main.py
