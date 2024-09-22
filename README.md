@@ -23,3 +23,7 @@ if you want to populate the sample .csv file to mysql database
 - On Windows use `venv\Scripts\activate`
 - pip install -r requirements.txt
 - python app/main.py
+- make  POST api request to http://localhost:5000/api/sql-query with json body like this:
+  {
+  "query": "write your question here"
+ } 
