@@ -1,0 +1,36 @@
+server:
+  host: "localhost"
+  port: 5000
+
+mysql:
+  name: "mydatabase"
+  user: "user"
+  password: "password"
+  database: "autogen"
+  host: "127.0.0.1"
+  port: 3306
+
+mariadb:
+  name: "mydatabase"
+  user: "root"
+  password: "root"
+  database: "mariadb_database_llm"
+  host: "127.0.0.1"
+  port: 3306
+
+openai:
+  api_key: ${OPENAI_API_KEY}
+  model: gpt-4-1106-preview
+
+azure:
+  personal_access_token: ${AZURE_PERSONAL_ACCESS_TOKEN}
+  organization_url: https://dev.azure.com/fineto
+
+local:
+  model: mistral
+  base_url: http://192.168.2.34:11434/v1
+  api_type: openai
+  api_key:
+
+llm_type: openai # local ,openai
+
