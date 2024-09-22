@@ -20,6 +20,6 @@ You will also need to have a `.env` file in the root of your project with the fo
 
 ## Installation
 python -m venv venv
-# On Windows use `venv\Scripts\activate`
+On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
 python app/main.py
