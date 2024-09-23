@@ -1,8 +1,16 @@
 from typing import Any, Dict
 from fastapi import FastAPI
 from agent.mysql_agent import SQLQueryHandler
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[""],  # Replace with your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],  # You can restrict this if necessary
+    allow_headers=["*"],  # You can restrict this if necessary
+)
 
 @app.post('/api/sql-query')
 async def execute_query(request_data: Dict[str, Any]):
@@ -24,7 +32,6 @@ async def execute_query(request_data: Dict[str, Any]):
     
     # Execute the query and get the result
     result = sql_handler.initiate_chat(query)
-    print(result)
     
     return result
 

@@ -8,19 +8,21 @@ from skill.mysql_skill import execute_query
 # Load environment variables from .env file
 load_dotenv()
 
+
 class SQLQueryHandler:
     def __init__(self):
         api_key = os.getenv("API_KEY")  # Get API key from environment variable
+        self.table_name = os.getenv("TABLE_NAME")  # Get the table name from .env
 
         self.config_list = [
             {
                 "model": "gpt-3.5-turbo",
-                "api_key": api_key,  # Use the loaded API key
+                "api_key": api_key,
             }
         ]
 
         self.llm_config = {
-            "cache_seed": 42,  # change the cache_seed for different trials
+            "cache_seed": 42,
             "temperature": 0,
             "config_list": self.config_list,
             "timeout": 120,
@@ -68,11 +70,10 @@ class SQLQueryHandler:
             return False
         json_str = msg["tool_responses"][0]["content"]
         obj = json.loads(json_str)
-        print("obj", obj)
         return "error" not in obj or obj["error"] is None
 
     def initiate_chat(self, query):
-        schema = """CREATE TABLE IF NOT EXISTS reviews (
+        schema = f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
             place_id VARCHAR(255),
             place_name VARCHAR(255),
             review_id VARCHAR(255),
@@ -93,14 +94,14 @@ class SQLQueryHandler:
 
         message = f"""Below is the schema for a SQL database:
         {schema}
-        Generate a SQL query to answer the following question:
+        Generate a SQL query to answer the following question with full colums in the:
         {query}
         """
 
         response = self.user_proxy.initiate_chat(
             self.sql_writer, message=message, summary_method="last_msg"
         )
-        
+
         # Ensure summary is parsed as JSON if it's a string
         if isinstance(response.summary, str):
             try:
@@ -108,24 +109,25 @@ class SQLQueryHandler:
             except json.JSONDecodeError:
                 return {
                     "error": "Failed to parse the summary into JSON",
-                    "success": False
+                    "success": False,
                 }
         else:
-            summary_json = response.summary  # Assuming it's already in the correct format
+            summary_json = (
+                response.summary
+            )  # Assuming it's already in the correct format
 
         # Parse the result if it's a string
-        if isinstance(summary_json.get('result'), str):
+        if isinstance(summary_json.get("result"), str):
             try:
-                result_json = json.loads(summary_json['result'])
+                result_json = json.loads(summary_json["result"])
             except json.JSONDecodeError:
                 return {
                     "error": "Failed to parse the result into JSON",
-                    "success": False
+                    "success": False,
                 }
         else:
-            result_json = summary_json.get('result')  # Assuming it's already in the correct format
+            result_json = summary_json.get(
+                "result"
+            )  # Assuming it's already in the correct format
 
-        return {
-            "result": result_json,
-            "success": True
-        }
+        return {"result": result_json, "success": True}
