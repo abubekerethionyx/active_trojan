@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[""],  # Replace with your frontend URL
+    allow_origins=["*"],  # Replace with your frontend URL
     allow_credentials=True,
     allow_methods=["*"],  # You can restrict this if necessary
     allow_headers=["*"],  # You can restrict this if necessary
