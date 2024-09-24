@@ -2,6 +2,9 @@ import mysql.connector
 import csv
 import os
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Dict, Any
 
 # Load environment variables from .env file
 load_dotenv()
@@ -14,98 +17,85 @@ db_config = {
     "database": os.getenv("DB_NAME"),  # Replace with your database name
 }
 
-# Create a connection to MySQL
-connection = mysql.connector.connect(**db_config)
-cursor = connection.cursor()
+# Create a FastAPI app
+app = FastAPI()
 
-# Step 1: Create the table
-create_table_query = """
-CREATE TABLE IF NOT EXISTS reviews (
-    place_id VARCHAR(255),
-    place_name VARCHAR(255),
-    review_id VARCHAR(255),
-    rating FLOAT,
-    review_text TEXT,
-    published_at VARCHAR(255),
-    published_at_date DATE,
-    response_from_owner_text TEXT,
-    response_from_owner_ago VARCHAR(255),
-    response_from_owner_date DATE,
-    review_likes_count INT,
-    total_number_of_reviews_by_reviewer INT,
-    total_number_of_photos_by_reviewer INT,
-    is_local_guide BOOLEAN,
-    review_translated_text TEXT,
-    response_from_owner_translated_text TEXT
-);
-"""
+# Define a Pydantic model for the request data
+class QueryRequest(BaseModel):
+    csv_file_path: str
 
-# Execute the query to create the table
-cursor.execute(create_table_query)
-print("Table created successfully.")
+def process_csv_to_db(csv_file_path: str):
+    # Create a connection to MySQL
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor()
 
-# Step 2: Read data from CSV and insert into the table
-csv_file_path = "arnold_gym_budapest.csv"  # Replace with the path to your CSV file
-
-# Open the CSV file and read it
-with open(csv_file_path, mode="r", encoding="utf-8") as file:
-    csv_reader = csv.DictReader(file)
-
-    # Define the insert query
-    insert_query = """
-    INSERT INTO reviews (
-        place_id, place_name, review_id, rating, review_text, 
-        published_at, published_at_date, response_from_owner_text, 
-        response_from_owner_ago, response_from_owner_date, 
-        review_likes_count, total_number_of_reviews_by_reviewer, 
-        total_number_of_photos_by_reviewer, is_local_guide, 
-        review_translated_text, response_from_owner_translated_text
-    ) 
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    # Step 1: Create the table
+    create_table_query = """
+    CREATE TABLE IF NOT EXISTS reviews (
+        place_id VARCHAR(255),
+        place_name VARCHAR(255),
+        review_id VARCHAR(255),
+        rating FLOAT,
+        review_text TEXT,
+        published_at VARCHAR(255),
+        published_at_date DATE,
+        response_from_owner_text TEXT,
+        response_from_owner_ago VARCHAR(255),
+        response_from_owner_date DATE,
+        review_likes_count INT,
+        total_number_of_reviews_by_reviewer INT,
+        total_number_of_photos_by_reviewer INT,
+        is_local_guide BOOLEAN,
+        review_translated_text TEXT,
+        response_from_owner_translated_text TEXT
+    );
     """
+    cursor.execute(create_table_query)
+    print("Table created successfully.")
 
-    # Insert each row from the CSV file into the database
-    for row in csv_reader:
-        # Prepare data for insertion
-        data = (
-            row["place_id"],
-            row["place_name"],
-            row["review_id"],
-            float(row["rating"]) if row["rating"] else None,
-            row["review_text"],
-            row["published_at"],
-            row["published_at_date"] if row["published_at_date"] else None,
-            row["response_from_owner_text"],
-            row["response_from_owner_ago"],
-            (
-                row["response_from_owner_date"]
-                if row["response_from_owner_date"]
-                else None
-            ),
-            int(row["review_likes_count"]) if row["review_likes_count"] else None,
-            (
-                int(row["total_number_of_reviews_by_reviewer"])
-                if row["total_number_of_reviews_by_reviewer"]
-                else None
-            ),
-            (
-                int(row["total_number_of_photos_by_reviewer"])
-                if row["total_number_of_photos_by_reviewer"]
-                else None
-            ),
-            bool(row["is_local_guide"]) if row["is_local_guide"] else None,
-            row["review_translated_text"],
-            row["response_from_owner_translated_text"],
-        )
+    # Step 2: Read data from CSV and insert into the table
+    with open(csv_file_path, mode="r", encoding="utf-8") as file:
+        csv_reader = csv.DictReader(file)
 
-        # Execute the insert query
-        cursor.execute(insert_query, data)
+        # Define the insert query
+        insert_query = """
+        INSERT INTO reviews (
+            place_id, place_name, review_id, rating, review_text, 
+            published_at, published_at_date, response_from_owner_text, 
+            response_from_owner_ago, response_from_owner_date, 
+            review_likes_count, total_number_of_reviews_by_reviewer, 
+            total_number_of_photos_by_reviewer, is_local_guide, 
+            review_translated_text, response_from_owner_translated_text
+        ) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """
 
-    # Commit the transaction
-    connection.commit()
+        # Insert each row from the CSV file into the database
+        for row in csv_reader:
+            data = (
+                row["place_id"],
+                row["place_name"],
+                row["review_id"],
+                float(row["rating"]) if row["rating"] else None,
+                row["review_text"],
+                row["published_at"],
+                row["published_at_date"] if row["published_at_date"] else None,
+                row["response_from_owner_text"],
+                row["response_from_owner_ago"],
+                row["response_from_owner_date"] if row["response_from_owner_date"] else None,
+                int(row["review_likes_count"]) if row["review_likes_count"] else None,
+                int(row["total_number_of_reviews_by_reviewer"]) if row["total_number_of_reviews_by_reviewer"] else None,
+                int(row["total_number_of_photos_by_reviewer"]) if row["total_number_of_photos_by_reviewer"] else None,
+                bool(row["is_local_guide"]) if row["is_local_guide"] else None,
+                row["review_translated_text"],
+                row["response_from_owner_translated_text"],
+            )
+            cursor.execute(insert_query, data)
 
-# Step 3: Close the cursor and connection
-cursor.close()
-connection.close()
+        connection.commit()
 
-print("Data inserted successfully.")
+    cursor.close()
+    connection.close()
+    print("Data inserted successfully.")
+
+
