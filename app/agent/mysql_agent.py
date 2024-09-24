@@ -12,7 +12,6 @@ load_dotenv()
 class SQLQueryHandler:
     def __init__(self):
         api_key = os.getenv("API_KEY")  # Get API key from environment variable
-        self.table_name = os.getenv("TABLE_NAME")  # Get the table name from .env
 
         self.config_list = [
             {
@@ -31,7 +30,7 @@ class SQLQueryHandler:
         self.sql_writer = ConversableAgent(
             "sql_writer",
             llm_config=self.llm_config,
-            system_message="You are good at writing SQL queries. Always respond with a function call to execute_sql().",
+            system_message="You are good at writing SQL queries and sugguest graphs.suggest what graph to use from PIE, BAR or CARD based on the phase. default CARD. Always respond with a function call to execute_sql().",
             is_termination_msg=self.check_termination,
             code_execution_config={"use_docker": False},
             human_input_mode="NEVER",
@@ -40,7 +39,7 @@ class SQLQueryHandler:
         self.user_proxy = UserProxyAgent(
             "user_proxy",
             human_input_mode="NEVER",
-            max_consecutive_auto_reply=5,
+            max_consecutive_auto_reply=2,
             code_execution_config={"use_docker": False},
         )
 
@@ -49,8 +48,11 @@ class SQLQueryHandler:
         )
         @self.user_proxy.register_for_execution()
         def execute_sql(
-            reflection: Annotated[str, "Think about what to do"],
             sql: Annotated[str, "SQL query"],
+            title: Annotated[str, "title to display"],
+            display_type: Annotated[str, "Dictionary with suggested graph"],
+            x_axis: Annotated[str, "suguest table column"],
+            y_axis: Annotated[str, "suggest table column"],
         ) -> Annotated[
             Dict[str, str], "Dictionary with keys 'sql', 'result' and 'error'"
         ]:
@@ -63,6 +65,12 @@ class SQLQueryHandler:
                     "sql": sql,
                     "error": None,
                     "result": result["result"],
+                    "dipslay": {
+                        "type": display_type,
+                        "title": title,
+                        "x_axis": x_axis,
+                        "y_axis": y_axis,
+                    },
                 }
 
     def check_termination(self, msg: Dict):
@@ -73,7 +81,7 @@ class SQLQueryHandler:
         return "error" not in obj or obj["error"] is None
 
     def initiate_chat(self, query):
-        schema = f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
+        schema = f"""CREATE TABLE IF NOT EXISTS reviews (
             place_id VARCHAR(255),
             place_name VARCHAR(255),
             review_id VARCHAR(255),
@@ -94,7 +102,7 @@ class SQLQueryHandler:
 
         message = f"""Below is the schema for a SQL database:
         {schema}
-        Generate a SQL query to answer the following question with full colums in the:
+        Generate a SQL query to answer the following question:
         {query}
         """
 
@@ -130,4 +138,4 @@ class SQLQueryHandler:
                 "result"
             )  # Assuming it's already in the correct format
 
-        return {"result": result_json, "success": True}
+        return {"result": result_json,"display":summary_json.get("dipslay"), "success": True}

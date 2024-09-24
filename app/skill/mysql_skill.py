@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 import json
 import os
+from decimal import Decimal
 from datetime import date
 from dotenv import load_dotenv
 
@@ -48,7 +49,7 @@ def execute_query(query, params=None):
             # Close the cursor and connection
             cursor.close()
             connection.close()
-
+            print(json_result)
             return {
                 "error": None,
                 "result": json.dumps(json_result, default=custom_serializer, indent=4),
@@ -61,5 +62,6 @@ def execute_query(query, params=None):
 def custom_serializer(obj):
     if isinstance(obj, date):
         return obj.isoformat()  # Convert date to ISO 8601 format (YYYY-MM-DD)
+    elif isinstance(obj, Decimal):
+        return float(obj)  # Convert Decimal to float
     raise TypeError(f"Type {type(obj)} is not serializable")
-

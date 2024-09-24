@@ -14,30 +14,29 @@ import {
 // Register the chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export const ReviewChart = ({ reviews }) => {
+export const ReviewChart = ({ reviewData }) => {
   const [chartData, setChartData] = useState(null);
+  const [chartOptions, setChartOptions] = useState({});
 
   useEffect(() => {
-    if (!reviews || reviews.length === 0) {
+    if (!reviewData || !reviewData.result || reviewData.result.length === 0) {
       return;
     }
 
-    // Transform data to group reviews by published date
-    const groupedReviews = reviews.reduce((acc, review) => {
-      const date = review.published_at_date;
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    }, {});
+    // Extract display settings
+    const { display } = reviewData;
+    const { title, x_axis, y_axis } = display;
 
-    const labels = Object.keys(groupedReviews);
-    const data = Object.values(groupedReviews);
+    // Prepare the chart data based on x_axis and y_axis
+    const labels = reviewData.result.map(item => item[x_axis]);
+    const data = reviewData.result.map(item => item[y_axis]);
 
     // Set the chart data
     setChartData({
       labels: labels,
       datasets: [
         {
-          label: 'Number of Reviews',
+          label: y_axis,
           data: data,
           backgroundColor: 'rgba(75, 192, 192, 0.6)',
           borderColor: 'rgba(75, 192, 192, 1)',
@@ -45,19 +44,33 @@ export const ReviewChart = ({ reviews }) => {
         },
       ],
     });
-  }, [reviews]);
+
+    // Set the chart options with dynamic title
+    setChartOptions({
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+        },
+        title: {
+          display: true,
+          text: title,
+        },
+      },
+    });
+  }, [reviewData]);
 
   if (!chartData) {
     return <Typography>Loading Chart...</Typography>;
   }
 
   return (
-    <Card sx={{ maxWidth: 800, margin: '20px auto' }}>
+    <Card sx={{ margin: '20px auto' }}>
       <CardContent>
         <Typography variant="h6" component="div" gutterBottom>
-          Reviews Over Time
+          {reviewData.display?.title || 'Chart'}
         </Typography>
-        <Bar data={chartData} options={{ responsive: true }} />
+        <Bar data={chartData} options={chartOptions} />
       </CardContent>
     </Card>
   );

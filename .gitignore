@@ -163,3 +163,4 @@ cython_debug/
 # Dependency directories
 node_modules/
 jspm_packages/
+.env

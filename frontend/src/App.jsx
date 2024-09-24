@@ -5,9 +5,11 @@ const App = () => {
 
 
   return (
-    <div>
-      <ResultCard />
-    </div>
+    
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100vw', height: '80vh' }}>
+        <ResultCard />
+      </div>
+   
   );
 };
 

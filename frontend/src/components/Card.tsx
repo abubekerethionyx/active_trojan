@@ -32,7 +32,6 @@ const ResultDisplay = () => {
     setSearchQuery(search.toLowerCase());
   };
 
-
   // Fetch data from the API
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +48,7 @@ const ResultDisplay = () => {
 
         const result = await response.json();
         console.log("result", result);
-        setData(result.result);
+        setData(result);
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch data");
@@ -57,49 +56,63 @@ const ResultDisplay = () => {
       }
     };
     fetchData();
-  }, [searchQuery, apiEndpoint]); // Include searchQuery in the dependency array
+  }, [searchQuery, apiEndpoint]);
 
-  // Generate chart data
-  const chartData = {
-    labels: data ? data.map((item) => item.label) : [],
-    datasets: [
-      {
-        label: "Values",
-        data: data ? data.map((item) => item.value) : [],
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ padding: 3 }}>
+        <Typography variant="h6" color="error" align="center">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ padding: 3 }}>
-      {/* Search bar placed at the top */}
+    <Box sx={{ padding: 5, width: '100%', marginTop: '25px' }}>
+      {/* Search bar */}
       <SearchBar onSearch={handleSearch} />
-        <Grid item xs={12} sm={6}>
-          <ReviewChart reviews={data} />
-        </Grid>
-      
-      <Grid container spacing={2} justifyContent="center" sx={{ mt: 3 }}>
-        <PieChart reviews={data}/>
 
-        {/* Chart Card */}
+      {/* Render charts or cards conditionally */}
+      <Grid container spacing={3} justifyContent="center" sx={{ mt: 3 }}>
+        {/* Render Bar Chart */}
+        {data?.display?.type === "BAR" && (
+          <Grid item xs={12} md={8}>
+            <ReviewChart reviewData={data} />
+          </Grid>
+        )}
 
-        {/* Review Cards */}
-        <Grid item xs={12}>
-          <Box
-            display="flex"
-            flexWrap="wrap"
-            justifyContent="flex-start"
-            overflow="auto"
-            gap={2} // Adds space between cards
-          >
-            {data?.map((singleData, index) => (
-              <ReviewCard key={index} review={singleData} />
-            ))}
-          </Box>
-        </Grid>
+        {/* Render Pie Chart */}
+        {data?.display?.type === "PIE" && (
+          <Grid item xs={12} md={8}>
+            <PieChart reviewData={data} />
+          </Grid>
+        )}
+
+        {/* Render Review Cards */}
+        {data?.display?.type === "CARD" && (
+          <Grid item xs={12}>
+            <Box
+              display="flex"
+              flexWrap="wrap"
+              justifyContent="center"
+              gap={2}
+              sx={{ mt: 2 }}
+            >
+              {data?.result?.map((singleData, index) => (
+                <ReviewCard key={index} review={singleData} />
+              ))}
+            </Box>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );
