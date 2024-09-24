@@ -4,19 +4,20 @@ import {
   CardContent,
   Typography,
   Box,
-  Grid,
   Divider,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 
 export const ReviewCard = ({ review }) => {
-  const [reviews,setReviews]= useState(review)
+  const [reviews, setReviews] = useState(review);
+
   useEffect(() => {
-   setReviews(reviews)
+    setReviews(reviews);
   }, [reviews]);
+
   return (
-    <Card sx={{ maxWidth: 600, margin: "20px auto", padding: 2 }}>
-      <CardContent>
+    <Card sx={{ maxWidth: 300, margin: "20px auto", padding: 2, }}>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
         {/* Place Name */}
         <Typography variant="h5" component="div" gutterBottom>
           {reviews?.place_name}
@@ -66,11 +67,11 @@ export const ReviewCard = ({ review }) => {
             Reviewer has posted {reviews?.total_number_of_reviews_by_reviewer}{" "}
             reviews.
           </Typography>
-          {reviews?.is_local_guide ? (
+          {reviews?.is_local_guide && (
             <Typography variant="body2" color="text.secondary">
               Local Guide
             </Typography>
-          ) : null}
+          )}
         </Box>
       </CardContent>
     </Card>

@@ -1,0 +1,189 @@
+import React, { useEffect, useState } from "react";
+import {
+  CircularProgress,
+  Grid,
+  Box,
+  CssBaseline,
+  Typography,
+} from "@mui/material";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+import { ReviewCard } from "./ReviewCard";
+import { ReviewChart } from "./graphs/ChartCard";
+import SearchBar from "./SearchBar";
+import PieChart from "./graphs/PieChart";
+import { ChartPaper } from "./charts/ChartPaper";
+import { API_URL } from "../constants/Constants";
+import LineChart from "./graphs/LineChart";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale);
+
+const ResultDisplay = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  const handleSearch = (search) => {
+    setSearchQuery(search.toLowerCase());
+  };
+
+  // Fetch data from the API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/reviews`);
+        const result = await response.json();
+        console.log(result);
+        setData(result);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch data");
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/sql-query`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: searchQuery,
+          }),
+        });
+        const result = await response.json();
+        console.log("search", result);
+        setData(result);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch data");
+        setLoading(false);
+      }
+    };
+    if (searchQuery) {
+      fetchData();
+    }
+  }, [searchQuery]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ padding: 3 }}>
+        <Typography variant="h6" color="error" align="center">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
+
+  const handleClose = () => {
+    setExpanded(!expanded);
+  };
+
+  // Separate charts and cards
+  const barAndPieCharts = data.filter(
+    (chart) =>
+      chart?.display?.type === "BAR" ||
+      chart?.display?.type === "PIE" ||
+      chart?.display?.type === "LINE"
+  );
+  const reviewCards = data.filter((chart) => chart?.display?.type === "CARD");
+
+  return (
+    <Box sx={{ height: "90vh" }}>
+      <CssBaseline />
+      <SearchBar onSearch={handleSearch} />
+      <Box
+        display="flex"
+        displayDirection="row"
+        gap={2}
+        justifyContent="center"
+        sx={{ mt: 3 }}
+      >
+        {barAndPieCharts.map((chart, index) => (
+          <Box display="flex" flexDirection={"row"}>
+            {chart?.display?.type === "BAR" && (
+              <ChartPaper
+                chartName={`${chart?.display?.type}-chart`}
+                chartComponent={<ReviewChart reviewData={chart} />}
+                onExpand={handleClose}
+                expanded={expanded}
+              />
+            )}
+            {chart?.display?.type === "PIE" && (
+              <ChartPaper
+                chartName={`${chart?.display?.type}-chart`}
+                chartComponent={<PieChart reviewData={chart} />}
+                onExpand={handleClose}
+                expanded={expanded}
+              />
+            )}
+            {chart?.display?.type === "LINE" && (
+              <ChartPaper
+                chartName={`${chart?.display?.type}-chart`}
+                chartComponent={<LineChart reviewData={chart} />}
+                onExpand={handleClose}
+                expanded={expanded}
+              />
+            )}
+          </Box>
+        ))}
+      </Box>
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        justifyContent="center"
+        gap={2}
+        sx={{ mt: 5 }}
+      >
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          justifyContent="center"
+          gap={2}
+          sx={{
+            mt: 5,
+            "& > *": {
+              flex: "1 1 calc(33.33% - 16px)", // Each component takes up 1/3 of the container's width, minus the gap
+              maxWidth: "calc(33.33% - 16px)", // Ensure each component doesn't exceed 1/3 of the width
+              minWidth: "250px", // Ensures a minimum width, so items don’t get too small
+            },
+          }}
+        >
+          {reviewCards.map((chart) =>
+            chart?.result?.map((singleData, index) => (
+              <ReviewCard review={singleData} />
+            ))
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default ResultDisplay;

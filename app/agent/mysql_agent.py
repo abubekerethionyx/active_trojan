@@ -30,7 +30,7 @@ class SQLQueryHandler:
         self.sql_writer = ConversableAgent(
             "sql_writer",
             llm_config=self.llm_config,
-            system_message="You are good at writing SQL queries and sugguest graphs.suggest what graph to use from PIE, BAR or CARD based on the phase. default CARD. Always respond with a function call to execute_sql().",
+            system_message="You are good at writing SQL queries and sugguest graphs.suggest what graph to use from PIE, BAR , LINE or CARD based on the phase. default CARD. Always respond with a function call to execute_sql().",
             is_termination_msg=self.check_termination,
             code_execution_config={"use_docker": False},
             human_input_mode="NEVER",

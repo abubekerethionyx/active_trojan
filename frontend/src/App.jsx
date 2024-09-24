@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ResultCard from "./components/Card"
+import ResultCard from "./components/CardList"
 
 const App = () => {
 
