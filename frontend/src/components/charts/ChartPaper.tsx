@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Paper, Typography, Button, Box } from "@mui/material";
+import React from "react";
+import { Paper, Typography, Box } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
 
-export const ChartPaper = ({
-  expanded,
-  chartName,
-  chartComponent,
-  onExpand,
-}) => {
+export const ChartPaper = ({ expanded, chartName, chartComponent, onExpand }) => {
   const handleExpand = () => {
-    // onExpand(id, !expanded);
+    onExpand(); // Trigger expand/collapse functionality
   };
 
   return (

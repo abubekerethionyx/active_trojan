@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   CircularProgress,
-  Grid,
   Box,
-  CssBaseline,
   Typography,
 } from "@mui/material";
 import {
@@ -20,6 +18,7 @@ import { ChartPaper } from "./charts/ChartPaper";
 import { API_URL } from "../constants/Constants";
 import LineChart from "./graphs/LineChart";
 import ReviewTable from "./graphs/ReviewTable";
+import { ChartListDialog } from "../components/charts/ChartListDialog"; // Import the Dialog
 
 ChartJS.register(BarElement, CategoryScale, LinearScale);
 
@@ -29,6 +28,7 @@ const ResultDisplay = () => {
   const [error, setError] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [expanded, setExpanded] = useState(false);
+  const [selectedChart, setSelectedChart] = useState<ReviewData|null>();
 
   const handleSearch = (search: string) => {
     setSearchQuery(search.toLowerCase());
@@ -44,7 +44,7 @@ const ResultDisplay = () => {
         setData(result);
         setLoading(false);
       } catch (err) {
-        setError("Failed to fetch data" as any);
+        setError("Failed to fetch data");
         setLoading(false);
       }
     };
@@ -103,18 +103,21 @@ const ResultDisplay = () => {
   }
 
   const handleClose = () => {
-    setExpanded(!expanded);
+    setExpanded(false);
+    setSelectedChart(null);
   };
 
-  // Separate charts and cards
-  const barAndPieCharts = Array.isArray(data)
-    ? data.filter(
-        (chart) =>
-          chart?.display?.type === "BAR" ||
-          chart?.display?.type === "PIE" ||
-          chart?.display?.type === "LINE"
-      )
-    : [];
+  const handleExpandChart = (chart: ReviewData) => {
+    setSelectedChart(chart);
+    setExpanded(true);
+  };
+
+  const barAndPieCharts = data.filter(
+    (chart) =>
+      chart?.display?.type === "BAR" ||
+      chart?.display?.type === "PIE" ||
+      chart?.display?.type === "LINE"
+  );
 
   const reviewCards = data.filter(
     (chart) =>
@@ -128,7 +131,7 @@ const ResultDisplay = () => {
           display: "flex",
           flexDirection: "row",
           justifyContent: "start",
-          height: "auto", // Allow height to adjust based on content
+          height: "auto",
         }}
       >
         <SearchBar onSearch={handleSearch} />
@@ -140,8 +143,8 @@ const ResultDisplay = () => {
           flexDirection: "row",
           gap: 2,
           width: "100%",
-          flexGrow: 1, // Allow this box to grow
-          height: "auto", // Allow height to adjust based on content
+          flexGrow: 1,
+          height: "auto",
         }}
       >
         {barAndPieCharts.map((chart, index) => (
@@ -150,7 +153,7 @@ const ResultDisplay = () => {
               <ChartPaper
                 chartName={`${chart?.display?.type}-chart`}
                 chartComponent={<ReviewChart reviewData={chart} />}
-                onExpand={handleClose}
+                onExpand={() => handleExpandChart(chart)}
                 expanded={expanded}
               />
             )}
@@ -158,7 +161,7 @@ const ResultDisplay = () => {
               <ChartPaper
                 chartName={`${chart?.display?.type}-chart`}
                 chartComponent={<PieChart reviewData={chart} />}
-                onExpand={handleClose}
+                onExpand={() => handleExpandChart(chart)}
                 expanded={expanded}
               />
             )}
@@ -166,13 +169,15 @@ const ResultDisplay = () => {
               <ChartPaper
                 chartName={`${chart?.display?.type}-chart`}
                 chartComponent={<LineChart reviewData={chart} />}
-                onExpand={handleClose}
+                onExpand={() => handleExpandChart(chart)}
                 expanded={expanded}
+
               />
             )}
           </Box>
         ))}
       </Box>
+      
       <Box sx={{ background: "#e5e5e5" }}>
         {reviewCards.map((chart, chartIndex) => (
           <Box key={chartIndex} sx={{ width: "90%" }}>
@@ -181,7 +186,7 @@ const ResultDisplay = () => {
                 <ChartPaper
                   chartName={`${chart.display.type}-chart`}
                   chartComponent={<ReviewTable reviewData={chart} />}
-                  onExpand={handleClose}
+                  onExpand={() => handleExpandChart(chart)}
                   expanded={expanded}
                 />
               </Box>
@@ -197,10 +202,10 @@ const ResultDisplay = () => {
         gap={2}
         sx={{
           mt: 5,
-          ",& > *": {
-            flex: "1 1 calc(33.33% - 16px)", // Each component takes up 1/3 of the container's width, minus the gap
-            maxWidth: "calc(33.33% - 16px)", // Ensure each component doesn't exceed 1/3 of the width
-            minWidth: "250px", // Ensures a minimum width, so items don’t get too small
+          "& > *": {
+            flex: "1 1 calc(33.33% - 16px)",
+            maxWidth: "calc(33.33% - 16px)",
+            minWidth: "250px",
           },
         }}
       >
@@ -212,6 +217,16 @@ const ResultDisplay = () => {
             ))
         )}
       </Box>
+
+      {selectedChart && (
+        <ChartListDialog
+          chartData={selectedChart}
+          expanded={expanded}
+          setExpanded={setExpanded}
+          selectIndex={selectedChart?.display?.type}
+          chartType={selectedChart?.display?.type}
+        />
+      )}
     </Box>
   );
 };

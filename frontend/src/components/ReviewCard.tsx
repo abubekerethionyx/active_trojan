@@ -20,7 +20,14 @@ export const ReviewCard = ({ review }) => {
   };
 
   return (
-    <Card sx={{ maxWidth: 300, padding: 2 }}>
+    <Card 
+      sx={{ 
+        maxWidth: 300, 
+        margin: '20px auto', // Center the card
+        borderRadius: '8px', // Rounded corners
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Soft shadow for a modern look
+      }}
+    >
       <CardContent
         sx={{
           display: "flex",
@@ -53,14 +60,30 @@ export const ReviewCard = ({ review }) => {
         >
           Reviewed {review?.published_at} (on {review?.published_at_date})
         </Typography>
+
         <Box
-          sx={{ display: "flex", flexDirection: "row", justifyContent: "end" }}
+          sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}
         >
-          <IconButton onClick={handleExpandClick} size="small" color="primary">
+          <IconButton 
+            onClick={handleExpandClick} 
+            size="small" 
+            color="primary"
+            sx={{
+              transition: 'transform 0.3s', // Smooth rotation effect
+              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', // Rotate icon when expanded
+            }}
+          >
             {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
         </Box>
       </CardContent>
+      <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+        <CardContent>
+          <Typography variant="body2" color="text.secondary">
+            Additional information about the review could go here.
+          </Typography>
+        </CardContent>
+      </Collapse>
     </Card>
   );
 };

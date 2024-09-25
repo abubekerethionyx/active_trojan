@@ -106,7 +106,7 @@ def get_review():
             }
     else:
         reviews_json = reviews_result.get("result")
-        table_json = tables_result.ge("result")
+        table_json = tables_result.get("result")
 
     card_display = {
         "type": "CARD",

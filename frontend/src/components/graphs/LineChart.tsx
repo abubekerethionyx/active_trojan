@@ -1,6 +1,7 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement } from "chart.js";
+import { Card, CardContent, Typography } from '@mui/material';
 
 // Registering necessary Chart.js components
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
@@ -11,15 +12,15 @@ const LineChart = ({ reviewData }) => {
   const yKey = reviewData.display.y_axis; // Key for y-axis values
 
   // Check if keys are provided and map to the data accordingly
-  const xValues = reviewData.result.map(item => item[xKey]); // x-values from specified key
-  const yValues = reviewData.result.map(item => item[yKey]); // y-values from specified key
+  const xValues = reviewData?.result?.map(item => item[xKey]); // x-values from specified key
+  const yValues = reviewData?.result?.map(item => item[yKey]); // y-values from specified key
 
   const data = {
-    labels: xValues.length ? xValues : ['No data'], // Use dynamic x-values or fallback to "No data"
+    labels: xValues?.length ? xValues : ['No data'], // Use dynamic x-values or fallback to "No data"
     datasets: [
       {
         label: reviewData.display.title || "Data", // Title from display
-        data: yValues.length ? yValues : [0], // Use dynamic y-values or fallback to 0
+        data: yValues?.length ? yValues : [0], // Use dynamic y-values or fallback to 0
         fill: false,
         borderColor: 'rgba(75, 192, 192, 1)',
         tension: 0.1,
@@ -45,7 +46,16 @@ const LineChart = ({ reviewData }) => {
     },
   };
 
-  return <Line data={data} options={options} />;
+  return (
+    <Card sx={{ margin: '20px auto' }}>
+      <CardContent>
+        <Typography variant="h6" component="div" gutterBottom>
+          {reviewData.display?.title || 'Chart'} {/* Title at the top */}
+        </Typography>
+        <Line data={data} options={options} /> {/* Chart component */}
+      </CardContent>
+    </Card>
+  );
 };
 
 export default LineChart;

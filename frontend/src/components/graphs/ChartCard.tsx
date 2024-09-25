@@ -36,7 +36,7 @@ export const ReviewChart = ({ reviewData }) => {
       labels: labels,
       datasets: [
         {
-          label: y_axis,
+          label: y_axis || 'Y-Axis',
           data: data,
           backgroundColor: 'rgba(75, 192, 192, 0.6)',
           borderColor: 'rgba(75, 192, 192, 1)',
@@ -45,7 +45,7 @@ export const ReviewChart = ({ reviewData }) => {
       ],
     });
 
-    // Set the chart options with dynamic title
+    // Set the chart options with dynamic title and axis labels
     setChartOptions({
       responsive: true,
       plugins: {
@@ -55,6 +55,20 @@ export const ReviewChart = ({ reviewData }) => {
         title: {
           display: true,
           text: title,
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: x_axis || 'X-Axis',
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: y_axis || 'Y-Axis',
+          },
         },
       },
     });

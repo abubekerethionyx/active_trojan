@@ -1,32 +1,45 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import { ChartPaper } from './ChartPaper';
-import PTChart from './PTChart';
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import { ChartPaper } from "./ChartPaper";
+import { ReviewChart } from "../graphs/ChartCard";
+import LineChart from "../graphs/LineChart";
+import PieChart from "../graphs/PieChart";
+
+// Import your chart components
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
+  "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
   },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
+  "& .MuiDialog-paper": {
+    borderRadius: "10px", // Optional: Customize dialog paper styling
   },
 }));
 
-export const ChartListDialog = ({ chartData, expanded, setExpanded, selectIndex }) => {
+export const ChartListDialog = ({ chartData, expanded, setExpanded, selectIndex, chartType }:{chartData: ReviewData, expanded: boolean, setExpanded: Function, selectIndex: string, chartType: string }) => {
   const dialogRef = React.useRef(null);
 
   const handleClose = () => {
-    setExpanded(!expanded);
+    setExpanded(false); // Properly close the dialog by setting expanded to false
   };
 
-
+  // Function to select the correct chart based on chartType
+  const renderChartComponent = () => {
+    switch (chartType) {
+      case "BAR":
+        return <ReviewChart reviewData={chartData} />;
+      case "PIE":
+        return <PieChart reviewData={chartData} />;
+      case "LINE":
+        return <LineChart reviewData={chartData} />;
+      default:
+        return <div>No chart available</div>;
+    }
+  };
 
   return (
     <div>
@@ -38,32 +51,14 @@ export const ChartListDialog = ({ chartData, expanded, setExpanded, selectIndex 
         maxWidth="md"
         ref={dialogRef}
       >
-        <DialogTitle sx={{ m: 0, p: 0.5 }} id="customized-dialog-title">
-          simulation chart
-        </DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: theme => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-        <DialogContent dividers>
+        <DialogContent dividers sx={{ position: 'relative' }}>
           <ChartPaper
             key={selectIndex}
-            chartName={`Chart-${selectIndex}`}
-            chartComponent={<PTChart />}
+            chartName={`${chartType}-Chart-${selectIndex}`}
+            chartComponent={renderChartComponent()}
             onExpand={handleClose}
-            id={`chart-${selectIndex}`}
-            tabIndex={0}
             expanded={expanded}
           />
-
         </DialogContent>
       </BootstrapDialog>
     </div>

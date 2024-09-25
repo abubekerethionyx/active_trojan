@@ -13,7 +13,7 @@ import {
 
 const ReviewTable = ({ reviewData }: { reviewData: ReviewData }) => {
   // Check if result is not empty
-  if (!reviewData.result.length) {
+  if (!reviewData.result?.length) {
     return (
       <Typography variant="h6" align="center" sx={{ margin: 2 }}>
         No review data available.
