@@ -11,8 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 
-const ReviewTable = ({ reviewData }) => {
-  console.log("reviewData",reviewData)
+const ReviewTable = ({ reviewData }: { reviewData: ReviewData }) => {
   // Check if result is not empty
   if (!reviewData.result.length) {
     return (
@@ -32,7 +31,9 @@ const ReviewTable = ({ reviewData }) => {
           <TableRow>
             {headers.map((header, index) => (
               <TableCell key={index}>
-                <Typography variant="h6">{header.charAt(0).toUpperCase() + header.slice(1)}</Typography>
+                <Typography variant="h6">
+                  {header.charAt(0).toUpperCase() + header.slice(1)}
+                </Typography>
               </TableCell>
             ))}
           </TableRow>
@@ -41,9 +42,7 @@ const ReviewTable = ({ reviewData }) => {
           {reviewData.result.map((item, rowIndex) => (
             <TableRow key={rowIndex}>
               {headers.map((header, cellIndex) => (
-                <TableCell key={cellIndex}>
-                  {item[header]}
-                </TableCell>
+                <TableCell key={cellIndex}>{item[header]}</TableCell>
               ))}
             </TableRow>
           ))}

@@ -107,19 +107,22 @@ const ResultDisplay = () => {
   };
 
   // Separate charts and cards
-  const barAndPieCharts = data.filter(
-    (chart) =>
-      chart?.display?.type === "BAR" ||
-      chart?.display?.type === "PIE" ||
-      chart?.display?.type === "LINE"
-  );
+  const barAndPieCharts = Array.isArray(data)
+    ? data.filter(
+        (chart) =>
+          chart?.display?.type === "BAR" ||
+          chart?.display?.type === "PIE" ||
+          chart?.display?.type === "LINE"
+      )
+    : [];
+
   const reviewCards = data.filter(
     (chart) =>
       chart?.display?.type === "CARD" || chart?.display?.type === "TABLE"
   );
 
   return (
-    <Box sx={{ width: "100%", padding: "15px"}}>
+    <Box sx={{ width: "100%", padding: "15px" }}>
       <Box
         sx={{
           display: "flex",
