@@ -9,11 +9,13 @@ export const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" mb={2} gap={1}>
+    <Box display="flex" justifyContent="center" alignItems="center" mb={2} gap={1} width="45%">
       <TextField
         variant="outlined"
         label="Search Reviews"
         value={searchQuery}
+        size='small'
+        fullWidth
         onChange={(e) => setSearchQuery(e.target.value)}
       />
       <Button variant="contained" color="primary" onClick={handleSearch}>

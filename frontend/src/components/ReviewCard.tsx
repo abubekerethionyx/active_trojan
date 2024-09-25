@@ -1,77 +1,64 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
   Typography,
   Box,
-  Divider,
+  IconButton,
+  Collapse,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 export const ReviewCard = ({ review }) => {
-  const [reviews, setReviews] = useState(review);
+  const [isExpanded, setIsExpanded] = useState(false); // State to track if content is expanded
 
-  useEffect(() => {
-    setReviews(reviews);
-  }, [reviews]);
+  // Toggle expand state
+  const handleExpandClick = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   return (
-    <Card sx={{ maxWidth: 300, margin: "20px auto", padding: 2, }}>
-      <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-        {/* Place Name */}
+    <Card sx={{ maxWidth: 300, padding: 2 }}>
+      <CardContent
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
         <Typography variant="h5" component="div" gutterBottom>
-          {reviews?.place_name}
+          {review?.place_name}
         </Typography>
 
-        {/* Rating */}
         <Box display="flex" alignItems="center" sx={{ marginBottom: 1 }}>
           <StarIcon color="primary" />
           <Typography variant="body1" sx={{ marginLeft: 0.5 }}>
-            {reviews?.rating} / 5.0
+            {review?.rating} / 5.0
           </Typography>
         </Box>
 
-        {/* Review Text */}
-        <Typography variant="body2" sx={{ marginBottom: 2 }}>
-          {reviews?.review_text}
+        <Typography variant="body2" sx={{ marginBottom: 1 }}>
+          {isExpanded
+            ? review?.review_text
+            : review?.review_text?.slice(0, 100) +
+              (review?.review_text?.length > 100 ? "..." : "")}
         </Typography>
 
-        {/* Published Info */}
-        <Typography variant="body2" color="text.secondary">
-          Reviewed {reviews?.published_at} (on {reviews?.published_at_date})
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ marginBottom: 1 }}
+        >
+          Reviewed {review?.published_at} (on {review?.published_at_date})
         </Typography>
-
-        <Divider sx={{ marginY: 2 }} />
-
-        {/* Owner's Response */}
-        {reviews?.response_from_owner_text && (
-          <Box>
-            <Typography variant="body1" gutterBottom>
-              Response from Owner:
-            </Typography>
-            <Typography variant="body2" sx={{ marginBottom: 2 }}>
-              {reviews?.response_from_owner_text}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Responded {reviews?.response_from_owner_ago} (on{" "}
-              {reviews?.response_from_owner_date})
-            </Typography>
-          </Box>
-        )}
-
-        <Divider sx={{ marginY: 2 }} />
-
-        {/* Reviewer's Details */}
-        <Box>
-          <Typography variant="body2" color="text.secondary">
-            Reviewer has posted {reviews?.total_number_of_reviews_by_reviewer}{" "}
-            reviews.
-          </Typography>
-          {reviews?.is_local_guide && (
-            <Typography variant="body2" color="text.secondary">
-              Local Guide
-            </Typography>
-          )}
+        <Box
+          sx={{ display: "flex", flexDirection: "row", justifyContent: "end" }}
+        >
+          <IconButton onClick={handleExpandClick} size="small" color="primary">
+            {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          </IconButton>
         </Box>
       </CardContent>
     </Card>

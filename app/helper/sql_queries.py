@@ -22,16 +22,22 @@ def get_rating():
     else:
         result_json = result.get("result")
     # Define display details for the response
-    display = {
+    bar_display = {
         "type": "BAR",
         "title": "Rating Distribution",
         "x_axis": "rating",
         "y_axis": "count",
     }
-
+    line_display = {
+        "type": "LINE",
+        "title": "Rating Distribution",
+        "x_axis": "rating",
+        "y_axis": "count",
+    }
     # Final response
-    response = {"result": result_json, "display": display, "success": True}
-    return response
+    bar_graph = {"result": result_json, "display": bar_display, "success": True}
+    line_graph = {"result": result_json, "display": line_display, "success": True}
+    return bar_graph, line_graph
 
 
 def get_likes():
@@ -72,45 +78,53 @@ def get_likes():
 
 
 def get_review():
-    query = """
+    review_query = """
         SELECT * 
         FROM reviews
         ORDER BY published_at_date DESC
         LIMIT 9
         """
-
+    table_query = """
+        SELECT review_id, rating, published_at, review_likes_count
+        FROM reviews
+        LIMIT 9;
+    """
     # Assuming execute_query is a function that executes the SQL query
-    result = execute_query(query)
-
+    reviews_result = execute_query(review_query)
+    tables_result = execute_query(table_query)
     # Parse the result if it's a string
-    if isinstance(result.get("result"), str):
+    if isinstance(reviews_result.get("result"), str) or isinstance(
+        tables_result.get("result"), str
+    ):
         try:
-            result_json = json.loads(result["result"])
+            reviews_json = json.loads(reviews_result["result"])
+            table_json = json.loads(tables_result["result"])
         except json.JSONDecodeError:
             return {
                 "error": "Failed to parse the result into JSON",
                 "success": False,
             }
     else:
-        result_json = result.get("result")
+        reviews_json = reviews_result.get("result")
+        table_json = tables_result.ge("result")
 
-    display = {
+    card_display = {
         "type": "CARD",
         "title": "reviews",
         "x_axis": "",
         "y_axis": "",
     }
-    response = {"result": result_json, "display": display, "success": True}
 
-    return response
+    table_display = {
+        "type": "TABLE",
+        "title": "reviews",
+        "x_axis": "",
+        "y_axis": "",
+    }
+    card = {"result": reviews_json, "display": card_display, "success": True}
+    table = {"result": table_json, "display": table_display, "success": True}
+    return card, table
 
-
-import json
-
-
-import json
-
-import json
 
 def get_review_count_daily():
     query = """
@@ -142,12 +156,8 @@ def get_review_count_daily():
         "x_axis": "Review Date",
         "y_axis": "Number of Reviewers",
     }
-    
+
     # Final response
-    response = {
-        "result": result_json, 
-        "display": display, 
-        "success": True
-    }
+    response = {"result": result_json, "display": display, "success": True}
 
     return response

@@ -19,17 +19,18 @@ import PieChart from "./graphs/PieChart";
 import { ChartPaper } from "./charts/ChartPaper";
 import { API_URL } from "../constants/Constants";
 import LineChart from "./graphs/LineChart";
+import ReviewTable from "./graphs/ReviewTable";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale);
 
 const ResultDisplay = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<ReviewData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [expanded, setExpanded] = useState(false);
 
-  const handleSearch = (search) => {
+  const handleSearch = (search: string) => {
     setSearchQuery(search.toLowerCase());
   };
 
@@ -43,7 +44,7 @@ const ResultDisplay = () => {
         setData(result);
         setLoading(false);
       } catch (err) {
-        setError("Failed to fetch data");
+        setError("Failed to fetch data" as any);
         setLoading(false);
       }
     };
@@ -112,21 +113,36 @@ const ResultDisplay = () => {
       chart?.display?.type === "PIE" ||
       chart?.display?.type === "LINE"
   );
-  const reviewCards = data.filter((chart) => chart?.display?.type === "CARD");
+  const reviewCards = data.filter(
+    (chart) =>
+      chart?.display?.type === "CARD" || chart?.display?.type === "TABLE"
+  );
 
   return (
-    <Box sx={{ height: "90vh" }}>
-      <CssBaseline />
-      <SearchBar onSearch={handleSearch} />
+    <Box sx={{ width: "100%", padding: "15px"}}>
       <Box
-        display="flex"
-        displayDirection="row"
-        gap={2}
-        justifyContent="center"
-        sx={{ mt: 3 }}
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "start",
+          height: "auto", // Allow height to adjust based on content
+        }}
+      >
+        <SearchBar onSearch={handleSearch} />
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: 2,
+          width: "100%",
+          flexGrow: 1, // Allow this box to grow
+          height: "auto", // Allow height to adjust based on content
+        }}
       >
         {barAndPieCharts.map((chart, index) => (
-          <Box display="flex" flexDirection={"row"}>
+          <Box sx={{ display: "flex", flexDirection: "row" }} key={index}>
             {chart?.display?.type === "BAR" && (
               <ChartPaper
                 chartName={`${chart?.display?.type}-chart`}
@@ -154,33 +170,44 @@ const ResultDisplay = () => {
           </Box>
         ))}
       </Box>
+      <Box sx={{ background: "#e5e5e5" }}>
+        {reviewCards.map((chart, chartIndex) => (
+          <Box key={chartIndex} sx={{ width: "90%" }}>
+            {chart?.display?.type === "TABLE" && (
+              <Box key={`table-${chartIndex}`}>
+                <ChartPaper
+                  chartName={`${chart.display.type}-chart`}
+                  chartComponent={<ReviewTable reviewData={chart} />}
+                  onExpand={handleClose}
+                  expanded={expanded}
+                />
+              </Box>
+            )}
+          </Box>
+        ))}
+      </Box>
+
       <Box
         display="flex"
         flexWrap="wrap"
-        justifyContent="center"
+        justifyContent="left"
         gap={2}
-        sx={{ mt: 5 }}
+        sx={{
+          mt: 5,
+          ",& > *": {
+            flex: "1 1 calc(33.33% - 16px)", // Each component takes up 1/3 of the container's width, minus the gap
+            maxWidth: "calc(33.33% - 16px)", // Ensure each component doesn't exceed 1/3 of the width
+            minWidth: "250px", // Ensures a minimum width, so items don’t get too small
+          },
+        }}
       >
-        <Box
-          display="flex"
-          flexWrap="wrap"
-          justifyContent="center"
-          gap={2}
-          sx={{
-            mt: 5,
-            "& > *": {
-              flex: "1 1 calc(33.33% - 16px)", // Each component takes up 1/3 of the container's width, minus the gap
-              maxWidth: "calc(33.33% - 16px)", // Ensure each component doesn't exceed 1/3 of the width
-              minWidth: "250px", // Ensures a minimum width, so items don’t get too small
-            },
-          }}
-        >
-          {reviewCards.map((chart) =>
+        {reviewCards.map(
+          (chart) =>
+            chart.display.type === "CARD" &&
             chart?.result?.map((singleData, index) => (
-              <ReviewCard review={singleData} />
+              <ReviewCard key={index} review={singleData} />
             ))
-          )}
-        </Box>
+        )}
       </Box>
     </Box>
   );

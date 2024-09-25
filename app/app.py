@@ -37,17 +37,17 @@ async def execute_api_query(request_data: Dict[str, Any]):
 
     # Execute the query and get the result
     result = sql_handler.initiate_chat(query)
-    
+
     return [result]
 
 
 @app.get("/api/reviews")
 async def get_rating_distribution():
     try:
-        ratings = get_rating()
-        reviews = get_review()
+        line_graph, bar_graph = get_rating()
+        card, table = get_review()
         likes = get_likes()
-        response = [ratings, reviews, likes]
+        response = [likes, line_graph, bar_graph, table, card]
         return response
 
     except Exception as e:
