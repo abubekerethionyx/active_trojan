@@ -49,7 +49,6 @@ def execute_query(query, params=None):
             # Close the cursor and connection
             cursor.close()
             connection.close()
-            print(json_result)
             return {
                 "error": None,
                 "result": json.dumps(json_result, default=custom_serializer, indent=4),

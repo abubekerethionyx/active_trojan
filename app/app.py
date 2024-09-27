@@ -65,10 +65,20 @@ async def trigger_csv_process(request: Dict[str, Any]):
 
 
 @app.get("/api/looker")
-async def get_rating_distribution():
+async def get_rating_distribution(query: str):
     try:
         card, table = get_review()
-        response = card.get("result")
+        # Check if query is any form of "default" or an empty string
+        if query.lower() in ["default",""]:
+            print("default")
+            response = table.get("result")
+            
+        else:
+            print("ai value")
+            response = card.get("result")
+            # sql_handler = SQLQueryHandler()
+            # result = sql_handler.initiate_chat(query)
+            # response = result.get("result")
         return response
 
     except Exception as e:

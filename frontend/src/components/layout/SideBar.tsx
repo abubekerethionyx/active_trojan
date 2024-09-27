@@ -7,7 +7,8 @@ const SideBar = () => {
       sx={{
         width: "200px", // Fixed width for sidebar
         height: "100%", // Full height of the container
-        backgroundColor: "#007BFF", // Sidebar background color
+        minHeight:"100vh",
+        backgroundColor: "#EA4886", // Sidebar background color
         color: "#fff",
         padding: "20px",
         display: "flex",
@@ -16,17 +17,29 @@ const SideBar = () => {
       }}
     >
       <List>
-        <ListItem >
-          <ListItemText primary="Home" />
+        <ListItem
+          component="button"
+          sx={{ background: "inherit", color: "white" }}
+        >
+          <ListItemText primary="Dashboard" />
         </ListItem>
-        <ListItem >
-          <ListItemText primary="About" />
+        <ListItem
+          component="button"
+          sx={{ background: "inherit", color: "white" }}
+        >
+          <ListItemText primary="Analytics" />
         </ListItem>
-        <ListItem >
-          <ListItemText primary="Services" />
+        <ListItem
+          component="button"
+          sx={{ background: "inherit", color: "white" }}
+        >
+          <ListItemText primary="Reports" />
         </ListItem>
-        <ListItem >
-          <ListItemText primary="Contact" />
+        <ListItem
+          component="button"
+          sx={{ background: "inherit", color: "white" }}
+        >
+          <ListItemText primary="Settings" />
         </ListItem>
       </List>
     </Box>

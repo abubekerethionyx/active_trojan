@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 343.7 384.71">
+  <defs>
+    <style>
+      .cls-1{fill:#ea4886;}
+      .cls-2{fill:#1a2b5f;}
+      .cls-3{mix-blend-mode:multiply;}
+      .cls-4{isolation:isolate;}
+      .background-circle {fill: #f5f5f5;} <!-- Light background color -->
+    </style>
+  </defs>
+  <g class="cls-4">
+    <g id="Layer_1">
+      <g>
+        <!-- Added circular background -->
+        <circle cx="171.85" cy="192.35" r="250" class="background-circle"/>
+        
+        <g class="cls-3">
+          <path class="cls-2" d="m226.06,71.62H73.03v64.12h145.94v47.6H73.03v115.66H21.11V23.63h204.95v47.99Z"/>
+        </g>
+        <g class="cls-3">
+          <path class="cls-1" d="m77.91,361.09l49.57-88.12,23.21-25.97c-42.49-9.05-67.66-38.16-67.66-79.46,0-49.17,36.58-81.82,94.81-81.82h144.77v275.37h-51.53v-111.72s-80.25,0-80.25,0l-51.53,111.72h-61.37Zm102.67-229.74c-32.65,0-43.67,9.44-43.67,36.58,0,27.93,11.8,37.37,43.67,37.37h90.48s0-73.96,0-73.96h-90.48Z"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

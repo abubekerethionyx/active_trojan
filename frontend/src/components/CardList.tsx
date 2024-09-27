@@ -145,6 +145,7 @@ const ResultDisplay = () => {
           width: "100%",
           flexGrow: 1,
           height: "auto",
+          justifyContent: searchQuery ?  "center" :"start"
         }}
       >
         {barAndPieCharts.map((chart, index) => (
@@ -178,9 +179,9 @@ const ResultDisplay = () => {
         ))}
       </Box>
       
-      <Box sx={{ background: "#e5e5e5" }}>
+      <Box>
         {reviewCards.map((chart, chartIndex) => (
-          <Box key={chartIndex} sx={{ width: "90%" }}>
+          <Box key={chartIndex} sx={{ width: "92%" }}>
             {chart?.display?.type === "TABLE" && (
               <Box key={`table-${chartIndex}`}>
                 <ChartPaper
@@ -198,8 +199,8 @@ const ResultDisplay = () => {
       <Box
         display="flex"
         flexWrap="wrap"
-        justifyContent="left"
         gap={2}
+        width="92%"
         sx={{
           mt: 5,
           "& > *": {

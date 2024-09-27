@@ -87,7 +87,7 @@ def get_review():
     table_query = """
         SELECT review_id, rating, published_at, review_likes_count
         FROM reviews
-        LIMIT 9;
+        LIMIT 2;
     """
     # Assuming execute_query is a function that executes the SQL query
     reviews_result = execute_query(review_query)
