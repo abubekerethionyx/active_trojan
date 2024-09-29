@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  CircularProgress,
-  Box,
-  Typography,
-} from "@mui/material";
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-} from "chart.js";
+import { CircularProgress, Box, Typography, Grid, TextField, Button, Dialog, Tabs, Tab } from "@mui/material";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale } from "chart.js";
 import { ReviewCard } from "./ReviewCard";
 import { ReviewChart } from "./graphs/ChartCard";
 import SearchBar from "./SearchBar";
@@ -18,7 +9,8 @@ import { ChartPaper } from "./charts/ChartPaper";
 import { API_URL } from "../constants/Constants";
 import LineChart from "./graphs/LineChart";
 import ReviewTable from "./graphs/ReviewTable";
-import { ChartListDialog } from "../components/charts/ChartListDialog"; // Import the Dialog
+import { ChartListDialog } from "../components/charts/ChartListDialog";
+import CsvDialog from "../components/CsvDialog"; // Import the combined CSV dialog component
 
 ChartJS.register(BarElement, CategoryScale, LinearScale);
 
@@ -28,19 +20,26 @@ const ResultDisplay = () => {
   const [error, setError] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [expanded, setExpanded] = useState(false);
-  const [selectedChart, setSelectedChart] = useState<ReviewData|null>();
+  const [selectedChart, setSelectedChart] = useState<ReviewData | null>();
+  const [expandedIndex, setExpandedIndex] = useState<Record<number, boolean>>({});
+  const [csvDialogOpen, setCsvDialogOpen] = useState(false);
+
+  const handleToggleExpand = (index: number) => {
+    setExpandedIndex((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
 
   const handleSearch = (search: string) => {
     setSearchQuery(search.toLowerCase());
   };
 
-  // Fetch data from the API
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(`${API_URL}/api/reviews`);
         const result = await response.json();
-        console.log(result);
         setData(result);
         setLoading(false);
       } catch (err) {
@@ -56,15 +55,10 @@ const ResultDisplay = () => {
       try {
         const response = await fetch(`${API_URL}/api/sql-query`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: searchQuery,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: searchQuery }),
         });
         const result = await response.json();
-        console.log("search", result);
         setData(result);
         setLoading(false);
       } catch (err) {
@@ -72,21 +66,12 @@ const ResultDisplay = () => {
         setLoading(false);
       }
     };
-    if (searchQuery) {
-      fetchData();
-    }
+    if (searchQuery) fetchData();
   }, [searchQuery]);
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
         <CircularProgress />
       </Box>
     );
@@ -125,31 +110,19 @@ const ResultDisplay = () => {
   );
 
   return (
-    <Box sx={{ width: "100%", padding: "15px" }}>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "start",
-          height: "auto",
-        }}
-      >
+    <Box sx={{ width: "100%" }}>
+      {/* Search bar and CSV upload section */}
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <SearchBar onSearch={handleSearch} />
+        <Button variant="contained" onClick={() => setCsvDialogOpen(true)} sx={{ height: 'fit-content' }}>
+          Upload CSV
+        </Button>
       </Box>
 
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 2,
-          width: "100%",
-          flexGrow: 1,
-          height: "auto",
-          justifyContent: searchQuery ?  "center" :"start"
-        }}
-      >
+      {/* Chart display grid */}
+      <Grid container spacing={2}>
         {barAndPieCharts.map((chart, index) => (
-          <Box sx={{ display: "flex", flexDirection: "row" }} key={index}>
+          <Grid item xs={12} sm={6} md={4} key={index}>
             {chart?.display?.type === "BAR" && (
               <ChartPaper
                 chartName={`${chart?.display?.type}-chart`}
@@ -172,53 +145,58 @@ const ResultDisplay = () => {
                 chartComponent={<LineChart reviewData={chart} />}
                 onExpand={() => handleExpandChart(chart)}
                 expanded={expanded}
-
               />
             )}
-          </Box>
+          </Grid>
         ))}
-      </Box>
-      
-      <Box>
+      </Grid>
+
+      {/* Table and Cards */}
+      <Grid container spacing={2} sx={{ mt: 3 }}>
         {reviewCards.map((chart, chartIndex) => (
-          <Box key={chartIndex} sx={{ width: "92%" }}>
+          <Grid item xs={12} key={chartIndex}>
             {chart?.display?.type === "TABLE" && (
-              <Box key={`table-${chartIndex}`}>
-                <ChartPaper
-                  chartName={`${chart.display.type}-chart`}
-                  chartComponent={<ReviewTable reviewData={chart} />}
-                  onExpand={() => handleExpandChart(chart)}
-                  expanded={expanded}
-                />
-              </Box>
+              <ChartPaper
+                chartName={`${chart.display.type}-chart`}
+                chartComponent={<ReviewTable reviewData={chart} />}
+                onExpand={() => handleExpandChart(chart)}
+                expanded={expanded}
+              />
             )}
-          </Box>
+            <Box sx={{ padding: "20px", width: "100%" }}>
+              <Grid container spacing={3} justifyContent="flex-start">
+                {chart?.display?.type === "CARD" &&
+                  chart?.result?.map((singleData, index) => (
+                    <Grid
+                      item
+                      key={index}
+                      xs={12}
+                      sm={6}
+                      md={4}
+                      lg={3}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <ReviewCard
+                        review={singleData}
+                        isExpanded={!!expandedIndex[index]}
+                        onToggleExpand={handleToggleExpand}
+                        index={index}
+                      />
+                    </Grid>
+                  ))}
+              </Grid>
+            </Box>
+          </Grid>
         ))}
-      </Box>
+      </Grid>
 
-      <Box
-        display="flex"
-        flexWrap="wrap"
-        gap={2}
-        width="92%"
-        sx={{
-          mt: 5,
-          "& > *": {
-            flex: "1 1 calc(33.33% - 16px)",
-            maxWidth: "calc(33.33% - 16px)",
-            minWidth: "250px",
-          },
-        }}
-      >
-        {reviewCards.map(
-          (chart) =>
-            chart.display.type === "CARD" &&
-            chart?.result?.map((singleData, index) => (
-              <ReviewCard key={index} review={singleData} />
-            ))
-        )}
-      </Box>
+      {/* Combined CSV Dialog for all 3 CSV upload methods */}
+      <CsvDialog open={csvDialogOpen} onClose={() => setCsvDialogOpen(false)} />
 
+      {/* Dialog for expanded charts */}
       {selectedChart && (
         <ChartListDialog
           chartData={selectedChart}

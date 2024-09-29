@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -6,26 +6,39 @@ import {
   Box,
   IconButton,
   Collapse,
+  useTheme,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
-export const ReviewCard = ({ review }) => {
-  const [isExpanded, setIsExpanded] = useState(false); // State to track if content is expanded
+interface ReviewCardProps {
+  review :any,
+  isExpanded: boolean;
+  onToggleExpand: (index: number) => void;
+  index: number;
+}
 
-  // Toggle expand state
-  const handleExpandClick = () => {
-    setIsExpanded(!isExpanded);
-  };
+export const ReviewCard: React.FC<ReviewCardProps> = ({
+  review,
+  isExpanded,
+  onToggleExpand,
+  index,
+}) => {
+  const theme = useTheme();
 
   return (
-    <Card 
-      sx={{ 
-        maxWidth: 300, 
-        margin: '20px auto', // Center the card
-        borderRadius: '8px', // Rounded corners
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Soft shadow for a modern look
+    <Card
+      sx={{
+        maxWidth: 320,
+        margin: "10px auto",
+        borderRadius: "12px",
+        boxShadow: theme.shadows[4],
+        backgroundColor: "#f9f9f9",
+        transition: "box-shadow 0.3s ease-in-out",
+        "&:hover": {
+          boxShadow: theme.shadows[6],
+        },
       }}
     >
       <CardContent
@@ -35,7 +48,7 @@ export const ReviewCard = ({ review }) => {
           justifyContent: "space-between",
         }}
       >
-        <Typography variant="h5" component="div" gutterBottom>
+        <Typography variant="h6" gutterBottom>
           {review?.place_name}
         </Typography>
 
@@ -53,34 +66,29 @@ export const ReviewCard = ({ review }) => {
               (review?.review_text?.length > 100 ? "..." : "")}
         </Typography>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ marginBottom: 1 }}
-        >
-          Reviewed {review?.published_at} (on {review?.published_at_date})
+        <Typography variant="caption" color="text.secondary" sx={{ marginBottom: 1 }}>
+          Reviewed on {review?.published_at}
         </Typography>
 
-        <Box
-          sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}
-        >
-          <IconButton 
-            onClick={handleExpandClick} 
-            size="small" 
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <IconButton
+            onClick={() => onToggleExpand(index)} // Call the toggle function with the index
+            size="small"
             color="primary"
             sx={{
-              transition: 'transform 0.3s', // Smooth rotation effect
-              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', // Rotate icon when expanded
+              transition: "transform 0.3s ease",
+              transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
             }}
           >
             {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
         </Box>
       </CardContent>
+
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            Additional information about the review could go here.
+            Additional information about the review goes here.
           </Typography>
         </CardContent>
       </Collapse>
