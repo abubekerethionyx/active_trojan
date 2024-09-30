@@ -30,7 +30,8 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
   return (
     <Card
       sx={{
-        maxWidth: 320,
+        maxWidth: 300,
+        minHeight:250,
         margin: "10px auto",
         borderRadius: "12px",
         boxShadow: theme.shadows[4],

@@ -5,7 +5,7 @@ import { faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
 
 interface ChartPaperProps {
   expanded: boolean;
-  chartName: string;
+  chartName?: string;
   chartComponent: React.ReactNode;
   onExpand: () => void;
   height?: number; // Optional height prop

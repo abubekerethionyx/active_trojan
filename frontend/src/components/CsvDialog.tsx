@@ -46,7 +46,6 @@ const CsvDialog: React.FC<CsvDialogProps> = ({ open, onClose }) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-
       const response = await fetch(`${API_URL}/api/upload-csv`, {
         method: "POST",
         body: formData,
@@ -58,7 +57,7 @@ const CsvDialog: React.FC<CsvDialogProps> = ({ open, onClose }) => {
 
       const result = await response.json();
       alert("CSV uploaded successfully!");
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Error uploading CSV file.");
     } finally {
       setLoading(false);
@@ -88,7 +87,7 @@ const CsvDialog: React.FC<CsvDialogProps> = ({ open, onClose }) => {
 
       const result = await response.json();
       alert("CSV retrieved from file path successfully!");
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Error uploading CSV from file path.");
     } finally {
       setLoading(false);
@@ -98,34 +97,35 @@ const CsvDialog: React.FC<CsvDialogProps> = ({ open, onClose }) => {
   // Handle Google Docs CSV Retrieval
   const handleRetrieveCsv = async () => {
     if (!docId || !apiKey || !oauthToken) {
-      alert("Please fill in all fields: Document ID, API Key, and OAuth Token.");
+      alert(
+        "Please fill in all fields: Document ID, API Key, and OAuth Token."
+      );
       return;
     }
-  
+
     setLoading(true);
     setError("");
-  
+
     try {
       const response = await fetch(`${API_URL}/api/retrieve-google-docs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ documentId: docId, apiKey, oauthToken }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to retrieve CSV from Google Docs.");
       }
-  
+
       const result = await response.json();
       alert("CSV retrieved successfully from Google Docs!");
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Error retrieving CSV from Google Docs.");
     } finally {
       setLoading(false);
     }
   };
-  
-  
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>CSV Upload Options</DialogTitle>
@@ -163,7 +163,9 @@ const CsvDialog: React.FC<CsvDialogProps> = ({ open, onClose }) => {
 
         {activeTab === 2 && (
           <Box mt={2}>
-            <Typography variant="body1">Retrieve CSV from Google Docs:</Typography>
+            <Typography variant="body1">
+              Retrieve CSV from Google Docs:
+            </Typography>
             <TextField
               label="Document ID"
               variant="outlined"
@@ -204,12 +206,20 @@ const CsvDialog: React.FC<CsvDialogProps> = ({ open, onClose }) => {
           </Button>
         )}
         {activeTab === 1 && (
-          <Button onClick={handleUploadFilePath} color="primary" disabled={loading}>
+          <Button
+            onClick={handleUploadFilePath}
+            color="primary"
+            disabled={loading}
+          >
             Upload File Path
           </Button>
         )}
         {activeTab === 2 && (
-          <Button onClick={handleRetrieveCsv} color="primary" disabled={loading}>
+          <Button
+            onClick={handleRetrieveCsv}
+            color="primary"
+            disabled={loading}
+          >
             Retrieve CSV
           </Button>
         )}

@@ -23,8 +23,8 @@ app.add_middleware(
 
 
 # API to trigger CSV processing via file path, file upload, or Google Drive link
-@app.post("/api/trigger-csv-process")
-async def trigger_csv_process(csv_file_path: str = Form(None), csv_file: UploadFile = File(None)):
+@app.post("/api/upload-csv")
+async def trigger_csv_process(csv_file_path: str = Form(None), file: UploadFile = File(None)):
     """
     Endpoint to trigger CSV file processing from either a file path or a file upload.
 
@@ -41,11 +41,11 @@ async def trigger_csv_process(csv_file_path: str = Form(None), csv_file: UploadF
             process_csv_to_db(csv_file_path)
             return {"message": "CSV processing from file path triggered successfully."}
 
-        elif csv_file:
+        elif file:
             # Handle uploaded file
-            temp_file_path = f"temp_files/{csv_file.filename}"
+            temp_file_path = f"temp_files/{file.filename}"
             os.makedirs("temp_files", exist_ok=True)
-            save_uploaded_file(csv_file, temp_file_path)
+            save_uploaded_file(file, temp_file_path)
 
             # Process the uploaded file
             process_csv_to_db(temp_file_path)
