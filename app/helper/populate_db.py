@@ -14,9 +14,9 @@ db_config = {
     "host": os.getenv("DB_HOST"),
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
-    "database": os.getenv("DB_NAME"),  # Replace with your database name
+    "database": os.getenv("DB_NAME"),  # Common to both MySQL and PostgreSQL
+    "port": os.getenv("DB_PORT")
 }
-
 # Create a FastAPI app
 app = FastAPI()
 

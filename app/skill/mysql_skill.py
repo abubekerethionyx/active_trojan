@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+
 def execute_query(query, params=None):
     """
     Executes a MySQL query and fetches results.
@@ -24,6 +25,7 @@ def execute_query(query, params=None):
             database=os.getenv("DB_NAME"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
+            port=os.getenv("DB_PORT"),
         )
 
         if connection.is_connected():
@@ -42,9 +44,7 @@ def execute_query(query, params=None):
             columns = [i[0] for i in cursor.description]
 
             # Combine column names with results
-            json_result = [
-                dict(zip(columns, row)) for row in result
-            ]
+            json_result = [dict(zip(columns, row)) for row in result]
 
             # Close the cursor and connection
             cursor.close()
@@ -57,6 +57,7 @@ def execute_query(query, params=None):
     except Error as err:
         print(f"Error: {err}")
         return {"error": str(err), "result": None}
+
 
 def custom_serializer(obj):
     if isinstance(obj, date):
